@@ -30,9 +30,13 @@ class VistaLogin(Resource):
 
 class VistaSignUp(Resource):
     def post(self):        
-        user = User.query.filter(User.email == request.json["email"]).first()
+        user = User.query.filter(User.email == request.json["email"]).first()      
         if user is None:
-            password_encriptada = hashlib.md5(request.json["password"].encode('utf-8')).hexdigest()
+            pass_or = request.json["password"]
+            pass_cn = request.json["password_conf"]
+            if pass_or != pass_cn:
+                return "La confirmacación de contraseaña no es correcta.", 404
+            password_encriptada = hashlib.md5(request.json["password"].encode('utf-8')).hexdigest()            
             nuevo_user = User(user=request.json["user"], email=request.json["email"], password=password_encriptada) 
             db.session.add(nuevo_user)
             db.session.commit()
