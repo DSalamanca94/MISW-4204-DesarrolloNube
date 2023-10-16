@@ -56,6 +56,23 @@ class VistaTasks(Resource):
         except Exception as e:
             print(e)
             return {'error': str(e)}, 400
+        
+    def get(self):
+        # Obtiene el ID del usuario desde el token
+        usuario_id = get_jwt_identity()
+        # Consulta las tareas del usuario actual
+        tareas_usuario = Document.query.filter_by(user_id=usuario_id).all()
+        # Formatea las tareas y envíalas como respuesta
+        tareas_formateadas = [{
+            "id": tarea[0],
+            "nombre": tarea[1],
+            "extension_original": tarea[2],
+            "extension_destino": tarea[3],
+            "disponible": tarea[4]
+        } for tarea in tareas_usuario]
+
+        return jsonify(tareas_formateadas), 200
+
 
 
 class VistaProcess(Resource):
