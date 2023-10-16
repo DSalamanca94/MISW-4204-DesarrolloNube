@@ -5,18 +5,41 @@ from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identi
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 import datetime
-from modelos import db, Document, DocumentStatus
+import hashlib
+from modelos import db, Document, DocumentStatus, User
 
 class VistaStatus(Resource):
     def get(self):
         return {'status' : 'Connected'}
 
 class VistaLogin(Resource):
-    pass
+     def post(self):
+        password_encriptada = hashlib.md5(request.json["password"].encode('utf-8')).hexdigest()
+        user = User.query.filter(User.email == request.json["email"],
+                                       User.password == password_encriptada).first()        
+        db.session.commit()
+
+        if user is None:
+            return "El usuario no existe", 404
+        else:
+            token_de_acceso = create_access_token(identity=user.id)
+            return {"mensaje": "Inicio de sesión exitoso",
+                "token": token_de_acceso  
+            }
 
 
 class VistaSignUp(Resource):
-    pass
+    def post(self):        
+        user = User.query.filter(User.email == request.json["email"]).first()
+        if user is None:
+            password_encriptada = hashlib.md5(request.json["password"].encode('utf-8')).hexdigest()
+            nuevo_user = User(user=request.json["user"], email=request.json["email"], password=password_encriptada) 
+            db.session.add(nuevo_user)
+            db.session.commit()
+            token_de_acceso = create_access_token(identity=nuevo_user.id)
+            return {"mensaje": "usuario creado exitosamente", "id": nuevo_user.id}
+        else:
+            return "El usuario ya existe", 404
 
 
 class VistaTasks(Resource):
