@@ -29,3 +29,11 @@ class Document(db.Model):
     format_out = db.Column(db.Enum(DocumentFormat), nullable=False)
     file_in = db.Column(db.LargeBinary, nullable=False)
     file_out = db.Column(db.LargeBinary, nullable=True)
+
+class Task(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
+    name = db.Column(db.String(512))
+    file_in = db.Column(db.LargeBinary, nullable=False)
+    file_out = db.Column(db.LargeBinary, nullable=True)
+    available = db.Column(db.Boolean, server_default='t', default=True)
