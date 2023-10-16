@@ -2,8 +2,8 @@ from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
-from .modelos import db ,User, Document, DocumentFormat
-from vistas import VistaSignUp, BistaLogin, VistaTasks
+from modelos import db ,User, Document, DocumentFormat
+from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, VistaProcess
 
 
 app = Flask(__name__)
@@ -21,8 +21,14 @@ db.create_all()
 cors = CORS(app)
 
 api = Api(app)
-api.add_resource(VistaSignUp , '/api/auth/signup')
-api.add_resource(BistaLogin  , '/api/auth/login')
-api.add_resource(VistaTasks  , '/api/tasks', '/api/tasks/<int:id_task>')
+api.add_resource(VistaSignUp  , '/api/auth/signup')
+api.add_resource(VistaLogin   , '/api/auth/login')
+api.add_resource(VistaTasks   , '/api/tasks', '/api/tasks/<int:id_task>')
+api.add_resource(VistaStatus  , '/status')
+api.add_resource(VistaProcess  , '/api/process')
 
 jwt = JWTManager(app)
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
