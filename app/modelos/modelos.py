@@ -4,11 +4,11 @@ from enum import Enum
 db = SQLAlchemy()
 
 class DocumentFormat(Enum):
-    MP4 = 'MP4'
-    WEBM = 'WEBM'
-    AVI = 'AVI'
-    MPEG = 'MPEG'
-    WMV = 'WMV'
+    mp4 = 'mp4'
+    webm = 'webm'
+    avi = 'avi'
+    mpeg = 'mpeg'
+    wmv = 'wmv'
 
 class DocumentStatus(Enum):
     InQueue = 'InQueue'
@@ -17,15 +17,22 @@ class DocumentStatus(Enum):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
+    user = db.Column(db.String(512))
     email = db.Column(db.String(512))
     password = db.Column(db.String(512))
     documents = db.relationship('Document', backref='user', lazy=True)
 
 class Document(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    filename = db.Column(db.String(512),  nullable=False)
+    timestamp = db.Column(db.String(512),  nullable=False)
     status = db.Column(db.Enum(DocumentStatus), nullable=False)
     format_in = db.Column(db.Enum(DocumentFormat), nullable=False)
     format_out = db.Column(db.Enum(DocumentFormat), nullable=False)
     file_in = db.Column(db.LargeBinary, nullable=False)
     file_out = db.Column(db.LargeBinary, nullable=True)
+
+    def __str__(self) -> str:
+        return super().__str__()
+
