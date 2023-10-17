@@ -47,22 +47,22 @@ class VistaSignUp(Resource):
 
 
 class VistaTasks(Resource):
-    # @jwt_required
+    @jwt_required()
     def post(self):
         try:
-            # TODO
-            # ADD the user who owns the file
-            # TODO
+            user_id = get_jwt_identity()
             file = request.files['file']
             format_out = request.form.get('format')
             filename, format_in = file.filename.split('.')
+
+            print(user_id)
 
             if format_in == format_out:
                 return {'filename': filename, 
                     'error': f'same fiel format {format_in}, {format_out}'}, 300
              
             document = Document(
-                user_id = None, #TODO
+                user_id = user_id,
                 filename = filename,
                 timestamp = datetime.datetime.now() ,
                 status = DocumentStatus.InQueue ,
