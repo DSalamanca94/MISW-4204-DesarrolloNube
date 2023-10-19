@@ -85,6 +85,25 @@ class VistaTasks(Resource):
             return {'error': str(e)}, 400
 
 
+    @jwt_required()
+    def get(self, document_id, file_type):
+        current_user_id = get_jwt_identity()
+        document = Document.query.filter_by(id=document_id, user_id=current_user_id).first()
+
+        if document is None:
+            return {'error': 'Document not found'}, 404
+        else:
+            file_data = document.file_in
+            file_format = document.format_in.value
+          
+
+        response = make_response(send_file(file_data, mimetype=f'application/{file_format}', as_attachment=True))
+        response.headers["Content-Disposition"] = f"attachment; filename={document.filename}.{file_format}"
+        return {'status': document.status.value,
+                'format_in': document.format_in.value,
+                'format_out': document.format_out.value,
+                'File': response}, 200
+
 class VistaProcess(Resource):
     def get(self):
         pass
