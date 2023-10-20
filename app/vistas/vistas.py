@@ -1,4 +1,4 @@
-from flask import request, make_response, request
+from flask import request, make_response, request,send_file
 from sqlalchemy.orm import joinedload
 from flask.json import jsonify
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
@@ -7,6 +7,8 @@ from sqlalchemy.exc import IntegrityError
 import datetime
 import hashlib
 from modelos import db, Document, DocumentStatus, User
+from tempfile import NamedTemporaryFile
+from io import BytesIO
 
 class VistaStatus(Resource):
     def get(self):
@@ -86,23 +88,51 @@ class VistaTasks(Resource):
 
 
     @jwt_required()
-    def get(self, document_id, file_type):
-        current_user_id = get_jwt_identity()
-        document = Document.query.filter_by(id=document_id, user_id=current_user_id).first()
+    def get(self, id_task):
+        document = Document.query.get(id_task)
 
         if document is None:
-            return {'error': 'Document not found'}, 404
-        else:
-            file_data = document.file_in
-            file_format = document.format_in.value
-          
+            return {"error": "Documento no encontrado"}, 404
 
-        response = make_response(send_file(file_data, mimetype=f'application/{file_format}', as_attachment=True))
-        response.headers["Content-Disposition"] = f"attachment; filename={document.filename}.{file_format}"
-        return {'status': document.status.value,
-                'format_in': document.format_in.value,
-                'format_out': document.format_out.value,
-                'File': response}, 200
+        document_data = {
+            "id": document.id,
+            "filename": document.filename,
+            "timestamp": document.timestamp,
+            "status": document.status.value,
+            "inputFormat": document.format_in.value,
+            "outputFormat": document.format_out.value,
+            "loadedFile": f"/api/tasks/{id_task}/downloadin",
+            "transformedFile": f"/api/tasks/{id_task}/downloadout"
+        }
+        return document_data, 200
+
+# Estas vistas fueron creadas para descargar el archivo de entrada y el archivo de salida
+class DocumentDownloadOut(Resource):
+    def get(self, id_task):
+
+        document = Document.query.get(id_task)
+        if document is None:
+            return {"error": "Documento no encontrado"}, 404
+
+        file_data = document.file_out
+        if file_data is None:
+            return {"error": "El archivo no está disponible para descargar"}, 404
+        file_stream = BytesIO(file_data)
+        return send_file(file_stream, as_attachment=True, download_name=f"{document.filename}.{document.format_out}")
+
+class DocumentDownloadIn(Resource):
+    def get(self, id_task):
+        document = Document.query.get(id_task)
+
+        if document is None:
+            return {"error": "Documento no encontrado"}, 404
+
+        file_data = document.file_in
+        if file_data is None:
+            return {"error": "El archivo no está disponible para descargar"}, 404
+        file_stream = BytesIO(file_data)
+        return send_file(file_stream, as_attachment=True, download_name=f"{document.filename}.{document.format_in}")
+
 
 class VistaProcess(Resource):
     def get(self):

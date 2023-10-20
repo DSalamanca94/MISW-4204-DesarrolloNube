@@ -1,9 +1,9 @@
-from flask import Flask
+from flask import Flask, send_file
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from modelos import db ,User, Document, DocumentFormat
-from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, VistaProcess
+from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, VistaProcess, DocumentDownloadIn, DocumentDownloadOut
 
 
 app = Flask(__name__)
@@ -26,9 +26,13 @@ api.add_resource(VistaLogin   , '/api/auth/login')
 api.add_resource(VistaTasks   , '/api/tasks', '/api/tasks/<int:id_task>')
 api.add_resource(VistaStatus  , '/status')
 api.add_resource(VistaProcess  , '/api/process')
+api.add_resource(DocumentDownloadIn, '/api/tasks/<int:id_task>/downloadin')
+api.add_resource(DocumentDownloadOut, '/api/tasks/<int:id_task>/downloadout')
 
 jwt = JWTManager(app)
 
+def download_document(filename):
+    return send_file(filename, as_attachment=True, attachment_filename=filename)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
