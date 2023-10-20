@@ -105,6 +105,14 @@ class VistaTasks(Resource):
             "transformedFile": f"/api/tasks/{id_task}/downloadout"
         }
         return document_data, 200
+    
+    def delete(self, id_task):
+        document = Document.query.get(id_task)
+        if document is None:
+            return {"error": "Documento no encontrado"}, 404
+        db.session.delete(document)
+        db.session.commit()
+        return {"mensaje": "Documento eliminado"}, 204
 
 # Estas vistas fueron creadas para descargar el archivo de entrada y el archivo de salida
 class DocumentDownloadOut(Resource):
