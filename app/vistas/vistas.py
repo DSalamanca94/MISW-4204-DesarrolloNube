@@ -151,20 +151,32 @@ class ConvertDocument(Resource):
                 return {'error': 'Document is  in the queue for conversion'}, 201
 
             if document.format_in != document.format_out:
+
+                print(type(document.file_in))
+
                 file_in = BytesIO(document.file_in)
 
-                input_stream = ffmpeg.input('pipe:', format=str(document.format_in))
+                print(file_in)
 
-                output_format = document.format_out.value
+                # input_stream = ffmpeg.input('pipe:', format=str(document.format_in))
 
-                print(f'{ output_format = }')
+                # output_format = document.format_out.value
+
+                # print(f'{ output_format = }')
                 
-                output_stream = ffmpeg.output(input_stream, 'pipe:', format=output_format)
+                # output_stream = ffmpeg.output(input_stream, 'pipe:', format=output_format)
 
-                print(f'{ output_stream = }')
+                # print(f'{ output_stream = }')
 
-                # Run the conversion and capture the output
-                output_data, _ = ffmpeg.run(output_stream, input=file_in.read(), capture_stdout=True, capture_stderr=True)
+                output_data = BytesIO()
+
+                # stream  = ffmpeg.input('pipe:0',file_in ,format=document.format_in.value)
+
+                # stream  =  ffmpeg.output(stream, output_data ,format=document.format_out.value)
+
+                ffmpeg.input('pipe:0', format='mp4', vcodec='copy').output('pipe:1', format='m2v').run(input=file_in, stdout=output_data)
+
+                output_bytes = output_data.getvalue()
 
                 print(output_data)
 
