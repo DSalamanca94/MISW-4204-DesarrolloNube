@@ -16,6 +16,7 @@ class DocumentStatus(Enum):
     InQueue = 'InQueue'
     InProgress = 'InProgress'
     Ready = 'Ready'
+    Error = 'Error'
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -32,7 +33,8 @@ class Document(db.Model):
     status = db.Column(db.Enum(DocumentStatus), nullable=False)
     format_in = db.Column(db.Enum(DocumentFormat), nullable=False)
     format_out = db.Column(db.Enum(DocumentFormat), nullable=False)
-    file_in = db.Column(db.LargeBinary, nullable=False)
+    location_in = db.Column(db.String(512),  nullable=False)
+    file_in = db.Column(db.LargeBinary, nullable=True)
     file_out = db.Column(db.LargeBinary, nullable=True)
 
     def __str__(self) -> str:

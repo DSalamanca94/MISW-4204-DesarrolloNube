@@ -7,8 +7,12 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
+RUN mkdir /app/temp
+
+# Add FFmpeg source repository and install FFmpeg
+RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing ffmpeg
+
 COPY . .
 
-# CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
 ENTRYPOINT [ "python" ]
 CMD [ "app.py" ]

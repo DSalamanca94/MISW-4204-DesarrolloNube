@@ -1,11 +1,9 @@
 aniso8601==9.0.1
-APScheduler==3.10.4
 blinker==1.6.3
 click==8.1.7
 colorama==0.4.6
 ffmpeg-python==0.2.0
-Flask==2.3.3
-Flask-APScheduler==1.13.0
+Flask==3.0.0
 Flask-Cors==4.0.0
 Flask-JWT-Extended==4.5.3
 Flask-RESTful==0.3.10
@@ -20,11 +18,8 @@ marshmallow==3.20.1
 marshmallow-sqlalchemy==0.29.0
 packaging==23.2
 PyJWT==2.8.0
-python-dateutil==2.8.2
 pytz==2023.3.post1
 six==1.16.0
 SQLAlchemy==2.0.22
 typing_extensions==4.8.0
-tzdata==2023.3
-tzlocal==5.1
 Werkzeug==3.0.0
