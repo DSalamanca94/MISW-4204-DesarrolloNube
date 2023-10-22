@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_file
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
@@ -30,9 +30,13 @@ api.add_resource(VistaLogin, '/api/auth/login')
 api.add_resource(VistaTasks, '/api/tasks', '/api/tasks/<int:id_task>')
 api.add_resource(VistaStatus, '/status')
 api.add_resource(ConvertDocument, '/api/documents/<int:document_id>')
+api.add_resource(DocumentDownloadIn, '/api/tasks/<int:id_task>/downloadin')
+api.add_resource(DocumentDownloadOut, '/api/tasks/<int:id_task>/downloadout')
 
 jwt = JWTManager(app)
 
+def download_document(filename):
+    return send_file(filename, as_attachment=True, attachment_filename=filename)
 app.config.from_object(Config())
 
 # Initialize and start the APScheduler within the application context

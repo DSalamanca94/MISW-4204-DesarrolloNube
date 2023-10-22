@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
+from marshmallow import fields, Schema
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 db = SQLAlchemy()
 
@@ -19,7 +21,7 @@ class DocumentStatus(Enum):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     user = db.Column(db.String(512))
-    email = db.Column(db.String(512))
+    email = db.Column(db.String(512), unique=True, nullable=False)
     password = db.Column(db.String(512))
     documents = db.relationship('Document', backref='user', lazy=True)
 
@@ -38,3 +40,10 @@ class Document(db.Model):
     def __str__(self) -> str:
         return super().__str__()
 
+class UserSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        include_relationships = True
+        load_instance = True
+
+    id = fields.String()  
