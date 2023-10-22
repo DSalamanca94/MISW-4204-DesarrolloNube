@@ -4,25 +4,17 @@ import os
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from modelos import db, Document, DocumentStatus, User
 from flask import request, make_response, send_file, send_from_directory
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import joinedload
 from flask_restful import Resource
-from flask.json import jsonify
-from flask import current_app
-# from ffmpeg import 
-import ffmpeg  
-from io import BytesIO
-import atexit
 import subprocess
+from celery import Celery
 
-from flask_apscheduler import APScheduler
+_base = os.path.dirname(os.path.abspath(__file__))
+_base = os.path.dirname(_base)
+_upload_directory = os.path.join(_base, 'temp', 'in')
+_download_directory = os.path.join(_base, 'temp', 'out')
 
-base = os.path.dirname(os.path.abspath(__file__))
-base = os.path.dirname(base)
-_upload_directory = os.path.join(base, 'temp', 'in')
-_download_directory = os.path.join(base, 'temp', 'out')
 
-scheduler = APScheduler()
+celery_app = Celery(__name__, broke='redis://localhost:6379/0')
 
 if not os.path.exists(_upload_directory):
     os.makedirs(_upload_directory)
@@ -30,11 +22,33 @@ if not os.path.exists(_upload_directory):
 if not os.path.exists(_download_directory):
     os.makedirs(_download_directory)
 
-# def start_scheduler(app):
-#     scheduler = BackgroundScheduler()
-#     scheduler.add_job(ConvertDocument_function, 'interval', minutes=0.5)  # Run the function every 5 minutes
-#     scheduler.start()
-#     atexit.register(lambda: scheduler.shutdown())
+@celery_app.task()
+def convertFiles(document_id):
+    document = Document.query.get(document_id)
+    
+    input_filename = document.location_in
+    output_filename = f"{document.id}.{document.format_out.value}"
+    output_filename = os.path.join(_download_directory, output_filename)
+
+    with open(output_filename, "wb") as out_file:
+        out_file.close()
+
+    print(f'{input_filename =}')
+
+    ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
+
+    return_code = subprocess.call(ffmpeg_command)
+
+    with open(output_filename, "rb") as output_file:
+        document.file_out = output_file.read()
+    
+    if not return_code:
+        document.status = DocumentStatus.Ready
+
+    else :
+        document.status = DocumentStatus.Error
+
+    db.session.commit()
 
 class VistaStatus(Resource):
     def get(self):
@@ -107,6 +121,8 @@ class VistaTasks(Resource):
             file.save(save_path)
             db.session.commit()
 
+            convertFiles.delay(document.id)
+
             return {'filename': document.filename, 
                     'id': document.id,
                     'timestamp': document.timestamp, 
@@ -176,7 +192,6 @@ class DocumentDownloadIn(Resource):
 
 
 class ConvertDocument(Resource):
-
     @jwt_required()
     def get(self, document_id):
         try:
@@ -219,10 +234,6 @@ class ConvertDocument(Resource):
     
 
 def ConvertDocument_function():
-    with scheduler.app.app_context():
-        print('Execution')
-        document = Document.query.filter_by(status = DocumentStatus.InQueue).first
-
     def get(self, document_id):
         try:
             user_id = get_jwt_identity()
