@@ -33,9 +33,8 @@ class Document(db.Model):
     status = db.Column(db.Enum(DocumentStatus), nullable=False)
     format_in = db.Column(db.Enum(DocumentFormat), nullable=False)
     format_out = db.Column(db.Enum(DocumentFormat), nullable=False)
-    location_in = db.Column(db.String(512),  nullable=False)
-    file_in = db.Column(db.LargeBinary, nullable=True)
-    file_out = db.Column(db.LargeBinary, nullable=True)
+    location_in = db.Column(db.String(512),  nullable=True)
+    location_out = db.Column(db.String(512),  nullable=True)
 
     def __str__(self) -> str:
         return super().__str__()

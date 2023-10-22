@@ -17,14 +17,18 @@ import subprocess
 
 from flask_apscheduler import APScheduler
 
-_upload_directory = os.path.dirname(os.path.abspath(__file__))
-_upload_directory = os.path.dirname(_upload_directory)
-_upload_directory = os.path.join(_upload_directory, 'temp')
+base = os.path.dirname(os.path.abspath(__file__))
+base = os.path.dirname(base)
+_upload_directory = os.path.join(base, 'temp', 'in')
+_download_directory = os.path.join(base, 'temp', 'out')
 
 scheduler = APScheduler()
 
 if not os.path.exists(_upload_directory):
     os.makedirs(_upload_directory)
+
+if not os.path.exists(_download_directory):
+    os.makedirs(_download_directory)
 
 # def start_scheduler(app):
 #     scheduler = BackgroundScheduler()
@@ -83,14 +87,6 @@ class VistaTasks(Resource):
 
             if format_in == format_out:
                 return {'filename': filename, 'error': f'same file format {format_in}, {format_out}'}, 300
-            
-            timestamp = datetime.datetime.today()
-            print(str(timestamp).replace(" ", ""))
-            print("{}.{}".format( str(timestamp).replace(" ", ""),  format_in) )
-            # save_path = os.path.join(_upload_directory, "{}.{}".format( str(timestamp).replace(" ", ""),  format_in, format_in) )
-            save_path = os.path.join(_upload_directory, file.filename)
-            
-            file.save(save_path)
 
             document = Document(
                 user_id = user_id,
@@ -99,12 +95,16 @@ class VistaTasks(Resource):
                 status = DocumentStatus.InQueue ,
                 format_in =  format_in,
                 format_out =  format_out,
-                location_in =  save_path,
-                file_in = None ,
-                file_out = None
+                location_in =  ''
             )
 
             db.session.add(document)
+            db.session.commit()
+
+            save_path = os.path.join(_upload_directory, '{}.{}'.format(document.id,format_in ))
+
+            document.location_in = save_path
+            file.save(save_path)
             db.session.commit()
 
             return {'filename': document.filename, 
@@ -172,6 +172,7 @@ class DocumentDownloadIn(Resource):
         return send_file(file_stream, as_attachment=True, download_name=f"{document.filename}.{document.format_in}")
 
 class ConvertDocument(Resource):
+
     @jwt_required()
     def get(self, document_id):
         try:
@@ -185,7 +186,8 @@ class ConvertDocument(Resource):
                 return {'error': 'Unauthorized access to this document'}, 403
             
             input_filename = document.location_in
-            output_filename = f"output_{document.id}.{document.format_out.value}"
+            output_filename = f"{document.id}.{document.format_out.value}"
+            output_filename = os.path.join(_download_directory, output_filename)
 
             with open(output_filename, "wb") as out_file:
                 out_file.close()
@@ -205,15 +207,13 @@ class ConvertDocument(Resource):
             print('out',output_filename)
 
             db.session.commit()
-            # os.remove(output_filename)
-
             return send_file(output_filename, as_attachment=True)
-        
+
         except Exception as e:
             print('error', e)
             return {'error': str(e)}, 400
-        
-# @scheduler.task('interval', id='job1', minutes=1)
+    
+
 def ConvertDocument_function():
     with scheduler.app.app_context():
         print('Execution')
