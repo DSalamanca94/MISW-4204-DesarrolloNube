@@ -4,7 +4,7 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from flask_apscheduler import APScheduler
 from modelos import db, User, Document, DocumentFormat
-from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, ConvertDocument, DocumentDownloadIn, DocumentDownloadOut
+from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, DocumentDownloadIn, DocumentDownloadOut,ConvertDocument
 
 class Config:
     SCHEDULER_API_ENABLED = True

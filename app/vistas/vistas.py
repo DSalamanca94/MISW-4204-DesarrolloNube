@@ -3,7 +3,7 @@ import hashlib
 import os
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from modelos import db, Document, DocumentStatus, User
-from flask import request, make_response, send_file
+from flask import request, make_response, send_file, send_from_directory
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from flask_restful import Resource
@@ -147,29 +147,33 @@ class VistaTasks(Resource):
 # Estas vistas fueron creadas para descargar el archivo de entrada y el archivo de salida
 class DocumentDownloadOut(Resource):
     def get(self, id_task):
-
         document = Document.query.get(id_task)
         if document is None:
             return {"error": "Documento no encontrado"}, 404
 
-        file_data = document.file_out
-        if file_data is None:
+        file_name = f"{document.id}.{document.format_out.value}"
+        file_path = os.path.join('temp', 'out', file_name)        
+
+        if not os.path.exists(file_path):
             return {"error": "El archivo no está disponible para descargar"}, 404
-        file_stream = BytesIO(file_data)
-        return send_file(file_stream, as_attachment=True, download_name=f"{document.filename}.{document.format_out}")
+
+        return send_from_directory("temp/out", file_name, as_attachment=True)
+
 
 class DocumentDownloadIn(Resource):
     def get(self, id_task):
         document = Document.query.get(id_task)
-
         if document is None:
             return {"error": "Documento no encontrado"}, 404
 
-        file_data = document.file_in
-        if file_data is None:
+        file_name = f"{document.id}.{document.format_in.value}"
+        file_path = os.path.join('temp', 'in', file_name)        
+
+        if not os.path.exists(file_path):
             return {"error": "El archivo no está disponible para descargar"}, 404
-        file_stream = BytesIO(file_data)
-        return send_file(file_stream, as_attachment=True, download_name=f"{document.filename}.{document.format_in}")
+
+        return send_from_directory("temp/in", file_name, as_attachment=True)
+
 
 class ConvertDocument(Resource):
 
