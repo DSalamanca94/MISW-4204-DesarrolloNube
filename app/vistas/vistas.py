@@ -190,10 +190,10 @@ class DocumentDownloadOut(Resource):
     #     return send_from_directory("temp/out", file_name, as_attachment=True)
 
     @jwt_required()
-    def get(self, document_id):
+    def get(self, id_task):
         try:
             user_id = get_jwt_identity()
-            document = Document.query.get(document_id)
+            document = Document.query.get(id_task)
 
             if not document:
                 return {'error': 'Document not found'}, 404
