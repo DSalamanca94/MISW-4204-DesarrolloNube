@@ -22,3 +22,7 @@ docker image build -t app .
 ### 3. Construir el contenedor 
 
 docker run -v /app/temp -p 5000:5000 -d app
+
+# Documentacion
+
+La documentacion y entregables se encuentran en la wiki del repositorio.
