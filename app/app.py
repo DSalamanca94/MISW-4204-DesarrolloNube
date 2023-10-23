@@ -29,9 +29,9 @@ api.add_resource(VistaSignUp, '/api/auth/signup')
 api.add_resource(VistaLogin, '/api/auth/login')
 api.add_resource(VistaTasks, '/api/tasks', '/api/tasks/<int:id_task>')
 api.add_resource(VistaStatus, '/status')
-api.add_resource(ConvertDocument, '/api/documents/<int:document_id>')
 api.add_resource(DocumentDownloadIn, '/api/tasks/<int:id_task>/downloadin')
 api.add_resource(DocumentDownloadOut, '/api/tasks/<int:id_task>/downloadout')
+api.add_resource(ConvertDocument, '/api/documents/<int:document_id>')
 
 jwt = JWTManager(app)
 
