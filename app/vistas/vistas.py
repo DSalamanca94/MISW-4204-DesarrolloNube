@@ -157,14 +157,14 @@ class VistaTasks(Resource):
             tareas_usuario = Document.query.filter_by(user_id=usuario_id).all()
             # Formatea las tareas y envíalas como respuesta
             tareas_formateadas = [{
-                "id": tarea[0],
-                "nombre": tarea[1],
-                "extension_original": tarea[2],
-                "extension_destino": tarea[3],
-                "disponible": tarea[4]
+                "id": tarea.id,
+                "nombre": tarea.filename,
+                "extension_original": tarea.format_in.value,
+                "extension_destino": tarea.format_out.value,
+                "disponible": tarea.status.value
             } for tarea in tareas_usuario]
 
-            return jsonify(tareas_formateadas), 200
+            return tareas_formateadas, 200
     
     def delete(self, id_task):
         document = Document.query.get(id_task)
