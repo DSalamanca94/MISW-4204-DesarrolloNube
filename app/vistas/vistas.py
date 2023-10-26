@@ -8,10 +8,13 @@ from flask_restful import Resource
 import subprocess
 from celery import Celery
 
-_base = os.path.dirname(os.path.abspath(__file__))
-_base = os.path.dirname(_base)
-_upload_directory = os.path.join(_base, 'temp', 'in')
-_download_directory = os.path.join(_base, 'temp', 'out')
+# _base = os.path.dirname(os.path.abspath(__file__))
+# _base = os.path.dirname(_base)
+# _upload_directory = os.path.join(_base, 'temp', 'in')
+# _download_directory = os.path.join(_base, 'temp', 'out')
+
+_upload_directory = '/app/temp/in'  # Path to the uploaded files
+_download_directory = '/app/temp/out'  # Path to the processed files
 
 
 celery_app = Celery(__name__, broker='redis://localhost:6379/0')
@@ -30,17 +33,19 @@ def convertFiles(document_id):
     output_filename = f"{document.id}.{document.format_out.value}"
     output_filename = os.path.join(_download_directory, output_filename)
 
-    with open(output_filename, "wb") as out_file:
-        out_file.close()
+    # with open(output_filename, "wb") as out_file:
+    #     out_file.close()
 
-    print(f'{input_filename =}')
+    # print(f'{input_filename =}')
 
-    ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
+    # ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
 
-    return_code = subprocess.call(ffmpeg_command)
+    # return_code = subprocess.call(ffmpeg_command)
 
-    with open(output_filename, "rb") as output_file:
-        document.file_out = output_file.read()
+    # with open(output_filename, "rb") as output_file:
+    #     document.file_out = output_file.read()
+
+    return_code = 0
     
     if not return_code:
         document.status = DocumentStatus.Ready
@@ -97,8 +102,6 @@ class VistaTasks(Resource):
             format_out = request.form.get('format')
             filename, format_in = file.filename.split('.')
 
-            print(user_id)
-
             if format_in == format_out:
                 return {'filename': filename, 'error': f'same file format {format_in}, {format_out}'}, 300
 
@@ -119,6 +122,12 @@ class VistaTasks(Resource):
 
             document.location_in = save_path
             file.save(save_path)
+            # celery_app.send_task('convertFiles', (document.id,))
+
+            print('convertFiles.delay(document.id)')
+
+            args = (document.id ,)
+            convertFiles.delay(document.id )
             db.session.commit()
             return {'filename': document.filename, 
                     'id': document.id,

@@ -21,7 +21,7 @@ RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/te
 RUN apk add --no-cache redis
 
 # Expose any ports that your application might be using (e.g., for web services)
-# EXPOSE 80
+EXPOSE 80
 
 # Define an entry point for your container
 ENTRYPOINT [ "python", "app.py" ]
