@@ -6,10 +6,13 @@ from flask_apscheduler import APScheduler
 from modelos import db, User, Document, DocumentFormat
 from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, DocumentDownloadIn, DocumentDownloadOut,ConvertDocument
 
+
 class Config:
     SCHEDULER_API_ENABLED = True
 
 app = Flask(__name__)
+
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dbapp.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'MISO-Nube'

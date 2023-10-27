@@ -12,7 +12,7 @@ COPY . .
 RUN pip3 install -r requirements.txt
 
 # Create a directory for temporary files
-RUN mkdir /app/temp
+#RUN mkdir /app/temp
 
 # Install FFmpeg from Alpine Linux testing repository
 RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing ffmpeg
@@ -21,13 +21,13 @@ RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/te
 RUN apk add --no-cache redis
 
 # Expose any ports that your application might be using (e.g., for web services)
-# EXPOSE 80
+EXPOSE 80
 
 # Define an entry point for your container
 ENTRYPOINT [ "python", "app.py" ]
 
 # The CMD is your default command when you start the container, and it will run Celery
-CMD [ "celery", "-A", "vistas.vistas", "worker", "-l" ]
+CMD [ "celery", "-A", "tareas.tareas", "worker", "-l" ]
 
 # Start Redis server when the container starts
 CMD ["redis-server" , "--daemonize" , "yes"]
