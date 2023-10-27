@@ -7,13 +7,14 @@ from flask import jsonify, request, make_response, send_file, send_from_director
 from flask_restful import Resource
 import subprocess
 from celery import Celery
-from ..tareas.tareas import convert_document
+import imageio_ffmpeg as ffmpeg
 
 _base = os.path.dirname(os.path.abspath(__file__))
 _base = os.path.dirname(_base)
 _upload_directory = os.path.join(_base, 'temp', 'in')
 _download_directory = os.path.join(_base, 'temp', 'out')
 
+celery_app = Celery(__name__, broker='redis://localhost:6379/0')    
 
 if not os.path.exists(_upload_directory):
     os.makedirs(_upload_directory)
@@ -175,7 +176,6 @@ class DocumentDownloadIn(Resource):
 
         return send_from_directory("temp/in", file_name, as_attachment=True)
 
-
 class ConvertDocument(Resource):
     @jwt_required()
     def get(self, document_id):
@@ -190,13 +190,34 @@ class ConvertDocument(Resource):
                 return {'error': 'Unauthorized access to this document'}, 403
 
             # Instead of processing the document immediately, enqueue it for processing
-            convert_document.apply_async(args=[document_id])
+            convert_document.apply_async(args=[document.id, document.location_in, document.format_out.value])
 
             return {'message': 'Document conversion is in progress'}
 
         except Exception as e:
             return {'error': str(e)}, 400
 
-    
+
+@celery_app.task()
+def convert_document(document_id,document_location_in,document_format_out):
+    try:
+       
+        input_filename = document_location_in
+        output_filename = f"{document_id}.{document_format_out}"
+        output_filename = os.path.join(_download_directory, output_filename)
+
+        with open(output_filename, "wb") as out_file:
+            out_file.close()
+
+        print(f'{input_filename =}')
+
+        ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
+
+        return_code = subprocess.call(ffmpeg_command)
+        return send_file(output_filename, as_attachment=True)
+
+    except Exception as e:
+        print('error', e)
+        return {'error': str(e)}, 400
 
             
