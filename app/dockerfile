@@ -19,15 +19,3 @@ RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/te
 
 # Install Redis
 RUN apk add --no-cache redis
-
-# Expose any ports that your application might be using (e.g., for web services)
-# EXPOSE 80
-
-# Define an entry point for your container
-ENTRYPOINT [ "python", "app.py" ]
-
-# The CMD is your default command when you start the container, and it will run Celery
-CMD [ "celery", "-A", "vistas.vistas", "worker", "-l" ]
-
-# Start Redis server when the container starts
-CMD ["redis-server" , "--daemonize" , "yes"]

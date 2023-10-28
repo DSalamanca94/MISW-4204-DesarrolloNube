@@ -1,0 +1,33 @@
+version: "3"
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  app:
+    build: ./app
+    command: python app.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - app-db:/app/instance  
+      - app-temp:/app/temp    
+    depends_on:
+      - redis
+
+  celery-worker:
+    build: ./app
+    command: celery -A app.celery worker -l info
+    volumes:
+      - app-db:/app/instance
+      - app-temp:/app/temp
+    depends_on:
+      - redis
+    environment:
+      - C_FORCE_ROOT=true
+
+
+volumes:
+  app-db:  # Define a named volume for the SQLite database
+  app-temp:  # Define a named volume for the Temp folder
