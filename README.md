@@ -11,17 +11,9 @@ Esta guía te mostrará cómo ejecutar la aplicación en EL contenedor Docker.
 
 ### 1. Clonar el repositorio
 
-### 2. Navegar al directorio de la aplicación
+### 2. Construir la app
 
-cd app
-
-### 3. Construir la imagen Docker
-
-docker image build -t app .
-
-### 3. Construir el contenedor 
-
-docker run -v /app/temp -p 5000:5000 -d app
+docker compose up
 
 # Documentacion
 
