@@ -1,4 +1,6 @@
 from flask import Flask, send_file
+from config import config
+
 import os
 from flask_cors import CORS
 import subprocess
@@ -50,4 +52,5 @@ scheduler.init_app(app)
 scheduler.start()
 
 if __name__ == '__main__':
+    app.config.from_object(config['development'])
     app.run(debug=True, host='0.0.0.0')
