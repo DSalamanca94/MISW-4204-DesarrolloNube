@@ -8,7 +8,7 @@ from flask_restful import Api
 from flask_apscheduler import APScheduler
 from modelos import db, Document, DocumentStatus
 from celery_config import celery_init_app
-from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, DocumentDownloadIn, DocumentDownloadOut, ConvertDocument
+from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, DocumentDownloadIn, DocumentDownloadOut
 
 
 app = Flask(__name__)
@@ -42,7 +42,6 @@ api.add_resource(VistaTasks, '/api/tasks', '/api/tasks/<int:id_task>')
 api.add_resource(VistaStatus, '/status')
 api.add_resource(DocumentDownloadIn, '/api/tasks/<int:id_task>/downloadin')
 api.add_resource(DocumentDownloadOut, '/api/tasks/<int:id_task>/downloadout')
-api.add_resource(ConvertDocument, '/api/documents/<int:document_id>')
 
 jwt = JWTManager(app)
 
