@@ -13,6 +13,8 @@ RUN pip3 install -r requirements.txt
 
 # Create a directory for temporary files
 RUN mkdir /app/temp
+RUN mkdir /app/temp/in
+RUN mkdir /app/temp/out
 
 # Install FFmpeg from Alpine Linux testing repository
 RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing ffmpeg

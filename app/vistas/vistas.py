@@ -147,15 +147,12 @@ class VistaTasks(Resource):
             
             conn=get_connection()
             with conn.cursor() as cursor:
-                task_id = cursor.execute("insert into document(user_id,filename,timestamp,status,format_in,format_out,location_in) values(%s,%s,%s,%s,%s,%s,%s)",(user_id,filename,timestamp,status,format_in,format_out,location_in))
+                cursor.execute("insert into document(user_id,filename,timestamp,status,format_in,format_out,location_in) values(%s,%s,%s,%s,%s,%s,%s)",(user_id,filename,timestamp,status,format_in,format_out,location_in))
                 conn.commit()
                 cursor.execute("select * from document where timestamp=%s and user_id=%s",(str(timestamp),user_id))
                 resultset = cursor.fetchall()
                 task_id = resultset[0][0]
-
-                if not os.path.exists(_upload_directory):
-                    os.makedirs(_upload_directory)
-                
+               
                 save_path = os.path.join(_upload_directory, f'{task_id}.{format_in}')
                 cursor.execute("update document set location_in=%s where id=%s",(save_path,task_id))
                 conn.commit()
@@ -163,7 +160,7 @@ class VistaTasks(Resource):
               
             #file.save(save_path)
 
-            return make_response(jsonify({'mensaje': 'Tarea creada exitosamente','id': task_id}), 200)
+            return make_response(jsonify({'filename':filename,'id': task_id,'timestamp':timestamp,"status":status ,'mensaje': 'Tarea creada exitosamente'}), 200)
 
         except Exception as ex:
             raise Exception(ex)
