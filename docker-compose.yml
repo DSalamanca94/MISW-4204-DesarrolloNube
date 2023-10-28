@@ -5,6 +5,15 @@ services:
     ports:
       - "6379:6379"
 
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: python_flask_rest_api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5433:5433"
+
   app:
     build: ./app
     command: python app.py
@@ -15,6 +24,7 @@ services:
       - app-temp:/app/temp    
     depends_on:
       - redis
+      - postgres
 
   celery-worker:
     build: ./app
@@ -24,6 +34,7 @@ services:
       - app-temp:/app/temp
     depends_on:
       - redis
+      - postgres
     environment:
       - C_FORCE_ROOT=true
 
