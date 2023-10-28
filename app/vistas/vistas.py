@@ -6,18 +6,12 @@ from modelos import db, Document, DocumentStatus, User
 from flask import jsonify, request, make_response, send_file, send_from_directory
 from flask_restful import Resource
 import subprocess
-from celery import Celery
-
-# _base = os.path.dirname(os.path.abspath(__file__))
-# _base = os.path.dirname(_base)
-# _upload_directory = os.path.join(_base, 'temp', 'in')
-# _download_directory = os.path.join(_base, 'temp', 'out')
+from celery import shared_task
+from celery.contrib.abortable import AbortableTask
 
 _upload_directory = '/app/temp/in'  # Path to the uploaded files
 _download_directory = '/app/temp/out'  # Path to the processed files
 
-
-celery_app = Celery(__name__, broker='redis://localhost:6379/0')
 
 if not os.path.exists(_upload_directory):
     os.makedirs(_upload_directory)
@@ -25,27 +19,27 @@ if not os.path.exists(_upload_directory):
 if not os.path.exists(_download_directory):
     os.makedirs(_download_directory)
 
-@celery_app.task()
-def convertFiles(document_id):
+@shared_task(bind = True, base = AbortableTask)
+def convertFiles(self, document_id):
     document = Document.query.get(document_id)
     print('{} - document {} in convert Files'.format('datetime.datetime.now()', document.id))
     input_filename = document.location_in
     output_filename = f"{document.id}.{document.format_out.value}"
     output_filename = os.path.join(_download_directory, output_filename)
 
-    # with open(output_filename, "wb") as out_file:
-    #     out_file.close()
+    with open(output_filename, "wb") as out_file:
+        out_file.close()
 
-    # print(f'{input_filename =}')
+    print(f'{input_filename =}')
 
-    # ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
+    ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
 
-    # return_code = subprocess.call(ffmpeg_command)
+    return_code = subprocess.call(ffmpeg_command)
 
-    # with open(output_filename, "rb") as output_file:
-    #     document.file_out = output_file.read()
+    with open(output_filename, "rb") as output_file:
+        document.file_out = output_file.read()
 
-    return_code = 0
+    # return_code = 0
     
     if not return_code:
         document.status = DocumentStatus.Ready
@@ -122,19 +116,17 @@ class VistaTasks(Resource):
 
             document.location_in = save_path
             file.save(save_path)
-            # celery_app.send_task('convertFiles', (document.id,))
 
-            print('convertFiles.delay(document.id)')
-
-            args = (document.id ,)
             convertFiles.delay(document.id )
             db.session.commit()
             return {'filename': document.filename, 
                     'id': document.id,
                     'timestamp': document.timestamp, 
-                    'status': document.status.value}
+                    'status': document.status.value
+                    }
         
         except Exception as e:
+            db.session.commit()
             print(e)
             return {'error': str(e)}, 400
 
@@ -185,58 +177,19 @@ class VistaTasks(Resource):
 
 # Estas vistas fueron creadas para descargar el archivo de entrada y el archivo de salida
 class DocumentDownloadOut(Resource):
-    # def get(self, id_task):
-    #     document = Document.query.get(id_task)
-    #     if document is None:
-    #         return {"error": "Documento no encontrado"}, 404
-
-    #     file_name = f"{document.id}.{document.format_out.value}"
-    #     file_path = os.path.join('temp', 'out', file_name)        
-
-    #     if not os.path.exists(file_path):
-    #         return {"error": "El archivo no está disponible para descargar"}, 404
-
-    #     return send_from_directory("temp/out", file_name, as_attachment=True)
-
-    @jwt_required()
     def get(self, id_task):
-        try:
-            user_id = get_jwt_identity()
-            document = Document.query.get(id_task)
+        document = Document.query.get(id_task)
+        if document is None:
+            return {"error": "Documento no encontrado"}, 404
 
-            if not document:
-                return {'error': 'Document not found'}, 404
+        file_name = f"{document.id}.{document.format_out.value}"
+        file_path = os.path.join('temp', 'out', file_name)        
 
-            if document.user_id != user_id:
-                return {'error': 'Unauthorized access to this document'}, 403
-            
-            input_filename = document.location_in
-            output_filename = f"{document.id}.{document.format_out.value}"
-            output_filename = os.path.join(_download_directory, output_filename)
+        if not os.path.exists(file_path):
+            return {"error": "El archivo no está disponible para descargar"}, 404
 
-            with open(output_filename, "wb") as out_file:
-                out_file.close()
+        return send_from_directory("temp/out", file_name, as_attachment=True)
 
-            print(f'{input_filename =}')
-
-            ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
-
-            return_code = subprocess.call(ffmpeg_command)
-
-            with open(output_filename, "rb") as output_file:
-                document.file_out = output_file.read()
-
-            print('this sheet has run')
-            print(return_code)
-
-            print('out',output_filename)
-
-            db.session.commit()
-            return send_file(output_filename, as_attachment=True)
-
-        except Exception as e:
-            print('error', e)
-            return {'error': str(e)}, 400
 
 
 class DocumentDownloadIn(Resource):
@@ -252,88 +205,3 @@ class DocumentDownloadIn(Resource):
             return {"error": "El archivo no está disponible para descargar"}, 404
 
         return send_from_directory("temp/in", file_name, as_attachment=True)
-
-
-class ConvertDocument(Resource):
-    @jwt_required()
-    def get(self, document_id):
-        try:
-            user_id = get_jwt_identity()
-            document = Document.query.get(document_id)
-
-            if not document:
-                return {'error': 'Document not found'}, 404
-
-            if document.user_id != user_id:
-                return {'error': 'Unauthorized access to this document'}, 403
-            
-            input_filename = document.location_in
-            output_filename = f"{document.id}.{document.format_out.value}"
-            output_filename = os.path.join(_download_directory, output_filename)
-
-            with open(output_filename, "wb") as out_file:
-                out_file.close()
-
-            print(f'{input_filename =}')
-
-            ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
-
-            return_code = subprocess.call(ffmpeg_command)
-
-            with open(output_filename, "rb") as output_file:
-                document.file_out = output_file.read()
-
-            print('this sheet has run')
-            print(return_code)
-
-            print('out',output_filename)
-
-            db.session.commit()
-            return send_file(output_filename, as_attachment=True)
-
-        except Exception as e:
-            print('error', e)
-            return {'error': str(e)}, 400
-    
-
-def ConvertDocument_function():
-    def get(self, document_id):
-        try:
-            user_id = get_jwt_identity()
-            document = Document.query.get(document_id)
-
-            if not document:
-                return {'error': 'Document not found'}, 404
-
-            if document.user_id != user_id:
-                return {'error': 'Unauthorized access to this document'}, 403
-            
-            input_filename = document.location_in
-            output_filename = f"output_{document.id}.{document.format_out.value}"
-
-            with open(output_filename, "wb") as out_file:
-                out_file.close()
-
-            print(f'{input_filename =}')
-
-            ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
-
-            return_code = subprocess.call(ffmpeg_command)
-
-            with open(output_filename, "rb") as output_file:
-                document.file_out = output_file.read()
-
-            print('this sheet has run')
-            print(return_code)
-
-            print('out',output_filename)
-
-            db.session.commit()
-            # os.remove(output_filename)
-
-            return send_file(output_filename, as_attachment=True)
-        
-        except Exception as e:
-            print('error', e)
-            return {'error': str(e)}, 400
-            

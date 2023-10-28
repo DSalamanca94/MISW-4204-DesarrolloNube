@@ -7,6 +7,7 @@ services:
 
   app:
     build: ./app
+    command: python app.py
     ports:
       - "5000:5000"
     volumes:
@@ -17,7 +18,7 @@ services:
 
   celery-worker:
     build: ./app
-    command: celery -A app.vistas.vistas worker -l info
+    command: celery -A app.celery worker -l info
     volumes:
       - app-db:/app/instance
       - app-temp:/app/temp
@@ -26,15 +27,6 @@ services:
     environment:
       - C_FORCE_ROOT=true
 
-  # redis_app:
-  #   build: ./redis_app
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - app-db:/app/instance  # Mount the same volume for the SQLite database
-  #     - app-temp:/app/temp     # Mount the same volume for the Temp folder
-  #   depends_on:
-  #     - app
 
 volumes:
   app-db:  # Define a named volume for the SQLite database
