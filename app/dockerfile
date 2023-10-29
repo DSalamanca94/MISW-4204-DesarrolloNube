@@ -24,3 +24,28 @@ RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/te
 
 # Install Redis
 RUN apk add --no-cache redis
+
+# Use the official PostgreSQL 9.6 image as the base image
+FROM postgres:9.6
+
+# Set the environment variable for the PostgreSQL password
+ENV POSTGRES_PASSWORD 123456
+
+ENV SECRET_KEY=secret
+ENV PGSQL_HOST=localhost
+ENV PGSQL_USER=postgres
+ENV PGSQL_PASSWORD=123456
+ENV PGSQL_DATABASE=basedatospg
+ENV PGSQL_PORT=5432
+
+
+# Ejecutar comandos SQL en línea durante la creación del contenedor
+RUN echo "CREATE DATABASE basedatospg;" >> /docker-entrypoint-initdb.d/init.sql
+RUN echo "\\c basedatospg;" >> /docker-entrypoint-initdb.d/init.sql
+RUN echo "CREATE TABLE IF NOT EXISTS public.document (id serial PRIMARY KEY, user_id integer, filename character varying(512) NOT NULL, \"timestamp\" character varying(512) NOT NULL, status character varying(512) NOT NULL, format_in character varying(512) NOT NULL, format_out character varying(512) NOT NULL, location_in character varying(512), location_out character varying(512));" >> /docker-entrypoint-initdb.d/init.sql
+RUN echo "CREATE TABLE IF NOT EXISTS public.userlogin (id serial PRIMARY KEY, username character varying(512) NOT NULL, useremail character varying(512) NOT NULL, userpassword character varying(512) NOT NULL);" >> /docker-entrypoint-initdb.d/init.sql
+RUN echo "ALTER TABLE public.document ADD CONSTRAINT document_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.userlogin (id);" >> /docker-entrypoint-initdb.d/init.sql
+RUN echo "ALTER TABLE public.userlogin OWNER to postgres;" >> /docker-entrypoint-initdb.d/init.sql
+
+# Expose the default PostgreSQL port
+EXPOSE 5432
