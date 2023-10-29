@@ -1,18 +1,17 @@
 from flask import Flask, send_file
-import os
+from os import environ
 from flask_cors import CORS
-import subprocess
-from celery import Celery
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 from flask_restful import Api
 from flask_apscheduler import APScheduler
-from modelos import db, Document, DocumentStatus
+from modelos import db
 from celery_config import celery_init_app
 from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, DocumentDownloadIn, DocumentDownloadOut
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dbapp.sqlite'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@pgsql:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'MISO-Nube'
 app.config['PROPAGATE_EXCEPTIONS'] = True
@@ -47,6 +46,7 @@ jwt = JWTManager(app)
 
 scheduler = APScheduler()
 scheduler.init_app(app)
+migrate = Migrate(app, db)
 scheduler.start()
 
 if __name__ == '__main__':

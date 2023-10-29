@@ -17,5 +17,7 @@ RUN mkdir /app/temp
 # Install FFmpeg from Alpine Linux testing repository
 RUN apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing ffmpeg
 
-# Install Redis
-RUN apk add --no-cache redis
+ENV FLASK_APP=app.py
+# watch app' files
+ENV FLASK_DEBUG=true
+ENV FLASK_ENV=development
