@@ -1,18 +1,12 @@
-from flask import Flask, send_file
-from os import environ
+from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from flask_migrate import Migrate
 from flask_restful import Api
-from flask_apscheduler import APScheduler
-from modelos import db
 from celery_config import celery_init_app
 from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, DocumentDownloadIn, DocumentDownloadOut
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@pgsql:5432/postgres'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'MISO-Nube'
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['CELERY_CONFIG'] = {
@@ -24,11 +18,8 @@ app.config['CELERY_CONFIG'] = {
 app_context = app.app_context()
 app_context.push()
 
-db.init_app(app)
-
 celery = celery_init_app(app)
 celery.set_default()
-db.create_all()
 
 app_context.push()
 
@@ -44,10 +35,5 @@ api.add_resource(DocumentDownloadOut, '/api/tasks/<int:id_task>/downloadout')
 
 jwt = JWTManager(app)
 
-scheduler = APScheduler()
-scheduler.init_app(app)
-migrate = Migrate(app, db)
-scheduler.start()
-
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0', port=80)
