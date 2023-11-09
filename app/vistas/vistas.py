@@ -3,15 +3,14 @@ import hashlib
 import os
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from modelos import db, Document, DocumentStatus, User
-from flask import jsonify, request, make_response, send_file, send_from_directory
+from flask import  request, send_from_directory
 from flask_restful import Resource
-import subprocess
-from celery import shared_task
-from celery.contrib.abortable import AbortableTask
+from celery import Celery
 
 _upload_directory = '/app/temp/in'  # Path to the uploaded files
 _download_directory = '/app/temp/out'  # Path to the processed files
 
+celery_ = Celery(__name__)
 
 if not os.path.exists(_upload_directory):
     os.makedirs(_upload_directory)
@@ -19,35 +18,10 @@ if not os.path.exists(_upload_directory):
 if not os.path.exists(_download_directory):
     os.makedirs(_download_directory)
 
-@shared_task(bind = True, base = AbortableTask)
-def convertFiles(self, document_id):
-    document = Document.query.get(document_id)
-    print('{} - document {} in convert Files'.format('datetime.datetime.now()', document.id))
-    input_filename = document.location_in
-    output_filename = f"{document.id}.{document.format_out.value}"
-    output_filename = os.path.join(_download_directory, output_filename)
-
-    with open(output_filename, "wb") as out_file:
-        out_file.close()
-
-    print(f'{input_filename =}')
-
-    ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
-
-    return_code = subprocess.call(ffmpeg_command)
-
-    with open(output_filename, "rb") as output_file:
-        document.file_out = output_file.read()
-
-    # return_code = 0
-    
-    if not return_code:
-        document.status = DocumentStatus.Ready
-
-    else :
-        document.status = DocumentStatus.Error
-
-    db.session.commit()
+# @shared_task(bind = True, base = AbortableTask)
+@celery_.task(name = 'convertFiles')
+def convertFiles( document_id ):
+    pass
 
 class VistaStatus(Resource):
     def get(self):
@@ -117,8 +91,10 @@ class VistaTasks(Resource):
             document.location_in = save_path
             file.save(save_path)
 
-            convertFiles.delay(document.id )
             db.session.commit()
+            args = (document.id,)
+            convertFiles.apply_async(args)
+            
             return {'filename': document.filename, 
                     'id': document.id,
                     'timestamp': document.timestamp, 

@@ -27,7 +27,7 @@ db.init_app(app)
 
 celery = celery_init_app(app)
 celery.set_default()
-# db.create_all()
+db.create_all()
 
 app_context.push()
 

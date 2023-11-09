@@ -15,6 +15,18 @@ services:
     ports:
       - 5432:5432
 
+  celery-worker:
+    build: ./app
+    command: celery -A app.celery worker -l info
+    volumes:
+      - app-db:/app/instance
+      - app-temp:/app/temp
+    depends_on:
+      - redis
+      - pgsql
+    environment:
+      - C_FORCE_ROOT=true
+
   app:
     build: ./app
     command: python app.py
@@ -29,17 +41,20 @@ services:
       - redis
       - pgsql
 
-  celery-worker:
-    build: ./app
-    command: celery -A app.celery worker -l info
-    volumes:
-      - app-db:/app/instance
-      - app-temp:/app/temp
-    depends_on:
-      - redis
-      - pgsql
-    environment:
-      - C_FORCE_ROOT=true
+  # convert:
+  #   build: ./convertion_app
+  #   command: python app.py
+  #   ports:
+  #     - "5000:5001"
+  #   environment:
+  #     - DB_URL=postgresql://postgres:postgres@psql:5432/postgres
+  #   volumes:
+  #     - app-db:/app/instance  
+  #     - app-temp:/app/temp    
+  #   depends_on:
+  #     - redis
+  #     - pgsql
+  #     - app
 
 
 volumes:
