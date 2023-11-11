@@ -15,7 +15,7 @@ _upload_directory = 'gs://app-storage-folder/Input'  # Path to the uploaded file
 _download_directory = 'gs://app-storage-folder/Output'  # Path to the processed files
 
 # celery_ = Celery(__name__)
-celery_ = Celery('tasks', broker='redis://redis:6379/0')
+celery_ = Celery('tasks', broker='redis://34.145.101.102:6379/0')
 
 # @shared_task(bind = True, base = AbortableTask)
 @celery_.task(name = 'convertFiles')
@@ -99,7 +99,7 @@ class VistaTasks(Resource):
             db.session.commit()
             args = (document.id,)
 
-            # convertFiles.apply_async(args)
+            convertFiles.apply_async(args)
             
             return {'filename': document.filename, 
                     'id': document.id,
