@@ -6,18 +6,16 @@ from modelos import db, Document, DocumentStatus, User
 from flask import  request, send_from_directory
 from flask_restful import Resource
 from celery import Celery
+from google.cloud import storage
+from google.cloud.exceptions import NotFound
 
-_upload_directory = '/app/temp/in'  # Path to the uploaded files
-_download_directory = '/app/temp/out'  # Path to the processed files
+# _upload_directory = '/app/temp/in'  # Path to the uploaded files
+# _download_directory = '/app/temp/out'  # Path to the processed files
+_upload_directory = 'gs://app-storage-folder/Input'  # Path to the uploaded files
+_download_directory = 'gs://app-storage-folder/Output'  # Path to the processed files
 
 # celery_ = Celery(__name__)
 celery_ = Celery('tasks', broker='redis://redis:6379/0')
-
-if not os.path.exists(_upload_directory):
-    os.makedirs(_upload_directory)
-
-if not os.path.exists(_download_directory):
-    os.makedirs(_download_directory)
 
 # @shared_task(bind = True, base = AbortableTask)
 @celery_.task(name = 'convertFiles')
@@ -87,14 +85,21 @@ class VistaTasks(Resource):
             db.session.add(document)
             db.session.commit()
 
-            save_path = os.path.join(_upload_directory, '{}.{}'.format(document.id,format_in ))
+            # save_path = os.path.join(_upload_directory, '{}.{}'.format(document.id,format_in ))
+            # document.location_in = save_path
+            # file.save(save_path)
 
-            document.location_in = save_path
-            file.save(save_path)
+            storage_client = storage.Client()
+            bucket = storage_client.get_bucket('app-storage-folder')
+            blob = bucket.blob('Input/{}.{}'.format(document.id, format_in))
+            blob.upload_from_file(file.stream)
+
+            document.location_in = _upload_directory + 'Input/{}.{}'.format(document.id, format_in)
 
             db.session.commit()
             args = (document.id,)
-            convertFiles.apply_async(args)
+
+            # convertFiles.apply_async(args)
             
             return {'filename': document.filename, 
                     'id': document.id,
