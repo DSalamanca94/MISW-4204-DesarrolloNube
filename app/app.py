@@ -8,7 +8,6 @@ from modelos import db
 from celery_config import celery_init_app
 from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, DocumentDownloadIn, DocumentDownloadOut
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@pgsql:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

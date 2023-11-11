@@ -10,7 +10,8 @@ from celery import Celery
 _upload_directory = '/app/temp/in'  # Path to the uploaded files
 _download_directory = '/app/temp/out'  # Path to the processed files
 
-celery_ = Celery(__name__)
+# celery_ = Celery(__name__)
+celery_ = Celery('tasks', broker='redis://redis:6379/0')
 
 if not os.path.exists(_upload_directory):
     os.makedirs(_upload_directory)

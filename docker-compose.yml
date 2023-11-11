@@ -16,8 +16,11 @@ services:
       - 5432:5432
 
   celery-worker:
-    build: ./app
+    build: ./convertion_app
     command: celery -A app.celery worker -l info
+    # command: celery -A tareas.tareas worker -l info
+    # build: ./app
+    # command: celery -A app.celery worker -l info
     volumes:
       - app-db:/app/instance
       - app-temp:/app/temp
@@ -41,20 +44,20 @@ services:
       - redis
       - pgsql
 
-  # convert:
-  #   build: ./convertion_app
-  #   command: python app.py
-  #   ports:
-  #     - "5000:5001"
-  #   environment:
-  #     - DB_URL=postgresql://postgres:postgres@psql:5432/postgres
-  #   volumes:
-  #     - app-db:/app/instance  
-  #     - app-temp:/app/temp    
-  #   depends_on:
-  #     - redis
-  #     - pgsql
-  #     - app
+  convertion_app:
+    build: ./convertion_app
+    command: python app.py
+    ports:
+      - "5001:5001"
+    environment:
+      - DB_URL=postgresql://postgres:postgres@psql:5432/postgres
+    volumes:
+      - app-db:/app/instance  
+      - app-temp:/app/temp    
+    depends_on:
+      - redis
+      - pgsql
+      - app
 
 
 volumes:
