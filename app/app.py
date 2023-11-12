@@ -19,13 +19,14 @@ with open(config_file_path, 'r') as config_file:
 
 
 app = Flask(__name__)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://postgres:postgres@{config_data['IpPostgres']}:5432/postgres"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'MISO-Nube'
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['CELERY_CONFIG'] = {
-    "broker_url": f'redis://{config_data['IpRedis']}:6379/0',
-    "result_backend": f'redis://{config_data['IpRedis']}:6379/0',
+    "broker_url": f"redis://{config_data['IpRedis']}:6379/0",
+    "result_backend": f"redis://{config_data['IpRedis']}:6379/0",
 }
 
 # Initialize the application context
