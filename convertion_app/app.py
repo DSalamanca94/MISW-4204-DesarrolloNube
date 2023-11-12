@@ -16,7 +16,7 @@ _upload_directory = 'gs://app-storage-folder/Input'  # Path to the uploaded file
 _download_directory = 'gs://app-storage-folder/Output'
 
 
-from varibles import IpPostgres, IpRedis
+from ..variables import IpPostgres, IpRedis
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://postgres:postgres@{IpPostgres}:5432/postgres"
