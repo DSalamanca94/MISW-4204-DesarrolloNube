@@ -70,7 +70,7 @@ def convertFiles(document_id):
     return_code = subprocess.call(ffmpeg_command)
 
     # Upload output file to GCS
-    upload_to_gcs(local_output_filename, _download_directory + f'/{document.id}.{document.format_out.value}')
+    upload_to_gcs(local_output_filename, f'Output/{document.id}.{document.format_out.value}')
     
     document.location_out = output_filename
 
