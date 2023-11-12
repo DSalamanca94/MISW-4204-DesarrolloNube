@@ -12,7 +12,16 @@ _download_directory = '/app/temp/out'  # Path to the processed files
 
 # celery_ = Celery(__name__)
 
-celery_ = Celery('tasks', broker='redis://redis:6379/0')
+import json
+from os.path import abspath, dirname, join
+
+config_file_path = abspath(join(dirname(__file__), '..', 'config.json'))
+
+with open(config_file_path, 'r') as config_file:
+    config_data = json.load(config_file)
+
+celery_ = Celery('tasks', broker= f"redis://{config_data['IpRedis']}:6379/0")
+
 
 @celery_.task(name = 'convertFiles')
 def convertFiles( document_id ):
