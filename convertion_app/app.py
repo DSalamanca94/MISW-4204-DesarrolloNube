@@ -47,22 +47,20 @@ def convertFiles(document_id):
     output_filename = os.path.join(_download_directory, output_filename)
 
     # Download input file from GCS
-    download_from_gcs(document.location_in, input_filename)
+    # download_from_gcs(document.location_in, input_filename)
 
-    with open(output_filename, "wb") as out_file:
-        out_file.close()
+    # with open(output_filename, "wb") as out_file:
+    #     out_file.close()
 
-    print(f'{input_filename =}')
+    local_input_filename = download_from_gcs(document.location_in, document.id)
+    local_output_filename = f'{document.id}.{document.format_out.value}'
 
-    ffmpeg_command = ['ffmpeg', '-i', input_filename, output_filename, '-y']
+    ffmpeg_command = ['ffmpeg', '-i', local_input_filename, local_output_filename, '-y']
 
     return_code = subprocess.call(ffmpeg_command)
 
-    with open(output_filename, "rb") as output_file:
-        document.file_out = output_file.read()
-
     # Upload output file to GCS
-    upload_to_gcs(output_filename, f'Output/{document.id}.{document.format_out.value}')
+    upload_to_gcs(local_output_filename, f'{document.id}.{document.format_out.value}')
     
     document.location_out = output_filename
 
@@ -73,12 +71,19 @@ def convertFiles(document_id):
 
     db.session.commit()
 
-def download_from_gcs(source_blob_name, destination_file_name):
-    """Download a file from Google Cloud Storage."""
+def download_from_gcs(source_blob_name, document_id):
+    """Descargar un archivo desde Google Cloud Storage."""
     storage_client = storage.Client()
     bucket = storage_client.get_bucket('app-storage-folder')
     blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
+    # Crear un directorio local para cada documento
+    local_directory = f'/path/to/local_directory/{document_id}/'
+    os.makedirs(local_directory, exist_ok=True)
+    # Construir la ruta local del archivo
+    local_filename = os.path.join(local_directory, source_blob_name.split('/')[-1])
+    # Descargar el archivo al directorio local
+    blob.download_to_filename(local_filename)
+    return local_filename
 
 def upload_to_gcs(source_file_name, destination_blob_name):
     """Upload a file to Google Cloud Storage."""
