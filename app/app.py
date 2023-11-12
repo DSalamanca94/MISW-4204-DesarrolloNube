@@ -8,8 +8,11 @@ from modelos import db
 from celery_config import celery_init_app
 from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, DocumentDownloadIn, DocumentDownloadOut
 
-with open('variables.txt', 'r') as file:
+
+variables_file_path = os.path.join(os.path.dirname(__file__), '../variables.txt')
+with open(variables_file_path, 'r') as file:
     exec(file.read())
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://postgres:postgres@{IpPostgres}:5432/postgres"
