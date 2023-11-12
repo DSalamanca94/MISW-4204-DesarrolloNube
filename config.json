@@ -1,0 +1,4 @@
+{
+    "IpPostgres": "tu_ip_postgres",
+    "IpRedis": "tu_ip_redis"
+}
