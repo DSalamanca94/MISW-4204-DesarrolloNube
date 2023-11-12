@@ -8,14 +8,17 @@ from modelos import db
 from celery_config import celery_init_app
 from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, DocumentDownloadIn, DocumentDownloadOut
 
+with open('variables.txt', 'r') as file:
+    exec(file.read())
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@34.67.210.99:5432/postgres'
+app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://postgres:postgres@{IpPostgres}:5432/postgres"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'MISO-Nube'
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['CELERY_CONFIG'] = {
-    "broker_url":'redis://34.145.101.102:6379/0',
-    "result_backend":'redis://34.145.101.102:6379/0',
+    "broker_url": f'redis://{IpRedis}:6379/0',
+    "result_backend": f'redis://{IpRedis}:6379/0',
 }
 
 # Initialize the application context
