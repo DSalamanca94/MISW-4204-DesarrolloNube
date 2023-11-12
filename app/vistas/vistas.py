@@ -98,7 +98,7 @@ class VistaTasks(Resource):
             blob = bucket.blob('Input/{}.{}'.format(document.id, format_in))
             blob.upload_from_file(file.stream)
 
-            document.location_in = _upload_directory + '/{}.{}'.format(document.id, format_in)
+            document.location_in = 'Input/{}.{}'.format(document.id, format_in)
 
             db.session.commit()
             args = (document.id,)
