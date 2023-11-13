@@ -19,7 +19,7 @@ _download_directory = 'gs://app-storage-folder/Output'  # Path to the processed 
 
 # celery_ = Celery(__name__)
 
-celery_ = Celery('tasks', broker="redis://34.82.24.205:6379/0")
+celery_ = Celery('tasks', broker="redis://35.230.49.196:6379/0")
 
 # @shared_task(bind = True, base = AbortableTask)
 @celery_.task(name = 'convertFiles')
