@@ -110,13 +110,8 @@ class VistaTasks(Resource):
             db.session.commit()
             args = (document.id,)
 
-            print('before convertFiles')
-
             convertFiles.apply_async(args)
             
-            print('after convertFiles')
-
-
             return {'filename': document.filename, 
                     'id': document.id,
                     'timestamp': document.timestamp, 
