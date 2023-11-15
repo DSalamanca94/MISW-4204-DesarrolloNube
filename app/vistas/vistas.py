@@ -10,8 +10,6 @@ from google.cloud import storage
 from google.cloud.exceptions import NotFound
 
 
-
-
 # _upload_directory = '/app/temp/in'  # Path to the uploaded files
 # _download_directory = '/app/temp/out'  # Path to the processed files
 _upload_directory = 'gs://app-storage-folder/Input'  # Path to the uploaded files
@@ -19,7 +17,16 @@ _download_directory = 'gs://app-storage-folder/Output'  # Path to the processed 
 
 # celery_ = Celery(__name__)
 
-celery_ = Celery('tasks', broker="redis://35.230.49.196:6379/0")
+import json
+from os.path import abspath, dirname, join
+
+config_file_path = abspath(join(dirname(__file__), '..','..', 'config.json'))
+
+with open(config_file_path, 'r') as config_file:
+    config_data = json.load(config_file)
+
+
+celery_ = Celery('tasks', broker=f"redis://{config_data['IpRedis']}:6379/0")
 
 # @shared_task(bind = True, base = AbortableTask)
 @celery_.task(name = 'convertFiles')
