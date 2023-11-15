@@ -8,6 +8,9 @@ from flask_restful import Resource
 from celery import Celery
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
+from io import BytesIO
+from flask import send_file
+
 
 
 # _upload_directory = '/app/temp/in'  # Path to the uploaded files
@@ -125,7 +128,7 @@ class VistaTasks(Resource):
 
 
     @jwt_required()
-    def get(self, id_task = None):
+    def get(self, id_task=None):
         if id_task:
             document = Document.query.get(id_task)
 
@@ -143,13 +146,10 @@ class VistaTasks(Resource):
                 "transformedFile": f"/api/tasks/{id_task}/downloadout"
             }
             return document_data, 200
-        
+
         else:
-            # Obtiene el ID del usuario desde el token
             usuario_id = get_jwt_identity()
-            # Consulta las tareas del usuario actual
             tareas_usuario = Document.query.filter_by(user_id=usuario_id).all()
-            # Formatea las tareas y envíalas como respuesta
             tareas_formateadas = [{
                 "id": tarea.id,
                 "nombre": tarea.filename,
@@ -175,15 +175,22 @@ class DocumentDownloadOut(Resource):
         if document is None:
             return {"error": "Documento no encontrado"}, 404
 
-        file_name = f"{document.id}.{document.format_out.value}"
-        file_path = os.path.join('temp', 'out', file_name)        
+        # Get the file from Google Cloud Storage
+        storage_client = storage.Client()
+        bucket = storage_client.get_bucket('app-storage-folder')
+        blob = bucket.blob(f"Output/{document.id}.{document.format_out.value}")
 
-        if not os.path.exists(file_path):
-            return {"error": "El archivo no está disponible para descargar"}, 404
+        # Download the file to memory
+        file_content = BytesIO()
+        blob.download_to_file(file_content)
+        file_content.seek(0)
 
-        return send_from_directory("temp/out", file_name, as_attachment=True)
-
-
+        return send_file(
+            file_content,
+            as_attachment=True,
+            attachment_filename=f"{document.id}.{document.format_out.value}",
+            mimetype='application/octet-stream'
+        )
 
 class DocumentDownloadIn(Resource):
     def get(self, id_task):
@@ -191,10 +198,17 @@ class DocumentDownloadIn(Resource):
         if document is None:
             return {"error": "Documento no encontrado"}, 404
 
-        file_name = f"{document.id}.{document.format_in.value}"
-        file_path = os.path.join('temp', 'in', file_name)        
+        storage_client = storage.Client()
+        bucket = storage_client.get_bucket('app-storage-folder')
+        blob = bucket.blob(f"Input/{document.id}.{document.format_in.value}")
 
-        if not os.path.exists(file_path):
-            return {"error": "El archivo no está disponible para descargar"}, 404
+        file_content = BytesIO()
+        blob.download_to_file(file_content)
+        file_content.seek(0)
 
-        return send_from_directory("temp/in", file_name, as_attachment=True)
+        return send_file(
+            file_content,
+            as_attachment=True,
+            attachment_filename=f"{document.id}.{document.format_in.value}",
+            mimetype='application/octet-stream'
+        )
