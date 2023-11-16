@@ -24,10 +24,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://postgres:postgres@{config
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'MISO-Nube'
 app.config['PROPAGATE_EXCEPTIONS'] = True
-app.config['CELERY_CONFIG'] = {
-    "broker_url": f"redis://{config_data['IpRedis']}:6379/0",
-    "result_backend": f"redis://{config_data['IpRedis']}:6379/0",
-}
 
 # Initialize the application context
 app_context = app.app_context()
