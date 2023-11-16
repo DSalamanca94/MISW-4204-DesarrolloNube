@@ -31,9 +31,6 @@ app_context.push()
 
 db.init_app(app)
 
-celery = celery_init_app(app)
-celery.set_default()
-
 app_context.push()
 
 cors = CORS(app)

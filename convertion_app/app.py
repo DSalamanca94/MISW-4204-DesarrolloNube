@@ -5,12 +5,11 @@ from celery_config import celery_init_app
 import os
 import subprocess
 from modelos import db, Document, DocumentStatus
-from celery import Celery
-from celery.signals import task_postrun
 from flask.globals import current_app
 
-from google.cloud import storage
+from google.cloud import storage, pubsub_v1
 from google.cloud.exceptions import NotFound
+from concurrent.futures import TimeoutError
 
 _upload_directory = 'gs://app-storage-folder/Input'  # Path to the uploaded files
 _download_directory = 'gs://app-storage-folder/Output'
@@ -20,6 +19,9 @@ import json
 from os.path import abspath, dirname, join
 
 config_file_path = abspath(join(dirname(__file__), '..', 'config.json'))
+google_file_path = abspath(join(dirname(__file__), '..', 'app-tranformacion-archivos.json'))
+
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_file_path
 
 with open(config_file_path, 'r') as config_file:
     config_data = json.load(config_file)
@@ -30,26 +32,25 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://postgres:postgres@{config
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'MISO-Nube'
 app.config['PROPAGATE_EXCEPTIONS'] = True
-app.config['CELERY_CONFIG'] = {
-    "broker_url": f"redis://{config_data['IpRedis']}:6379/0",
-    "result_backend": f"redis://{config_data['IpRedis']}:6379/0",
-}
-
 # Initialize the application context
 app_context = app.app_context()
 app_context.push()
 
 db.init_app(app)
 
-celery = celery_init_app(app)
-celery.set_default()
-
 app_context.push()
 
 api = Api(app)
 
-@celery.task(name='convertFiles')
-def convertFiles(document_id):
+timeout = 5.0
+
+subscriber = pubsub_v1.SubscriberClient()
+subscription_path = 'projects/app-tranformacion-archivos/topics/convertion-tasks'
+
+
+
+def convertFiles(message):
+    document_id = message.data
     document = Document.query.get(document_id)
     print('{} - document {} in convertFiles'.format('datetime.datetime.now()', document.id))
     input_filename = document.location_in
@@ -102,5 +103,14 @@ def upload_to_gcs(source_file_name, destination_blob_name):
     blob = bucket.blob(destination_blob_name)
     blob.upload_from_filename(source_file_name)
 
+streaming_pull_future = subscriber.subscribe(subscription_path, callback=convertFiles)
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
+    with subscriber:
+        try:
+            streaming_pull_future.result()
+        except:
+            streaming_pull_future.cancel()
+            streaming_pull_future.result()
+    
