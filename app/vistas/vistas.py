@@ -120,7 +120,7 @@ class VistaTasks(Resource):
             data = 'publisher working'
 
             attributes = {
-                'documentId': document.id
+                'documentId': str(document.id)
             }
             data = data.encode('utf-8')
 
