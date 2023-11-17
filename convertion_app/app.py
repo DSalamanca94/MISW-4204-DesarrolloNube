@@ -48,39 +48,40 @@ subscriber = pubsub_v1.SubscriberClient()
 subscription_path = 'projects/app-tranformacion-archivos/subscriptions/convertion-tasks-sub'
 
 
-
 def convertFiles(message):
-    document_id = message.data
-    document = Document.query.get(document_id)
-    print('{} - document {} in convertFiles'.format('datetime.datetime.now()', document.id))
-    input_filename = document.location_in
-    output_filename = f"{document.id}.{document.format_out.value}"
-    output_filename = os.path.join(_download_directory, output_filename)
+    with app.app_context():
+        document_id = message.attributes.get('documentId')
+        document = Document.query.get(document_id)
+        print('{} - document {} in convertFiles'.format('datetime.datetime.now()', document.id))
+        input_filename = document.location_in
+        output_filename = f"{document.id}.{document.format_out.value}"
+        output_filename = os.path.join(_download_directory, output_filename)
 
-    # Download input file from GCS
-    # download_from_gcs(document.location_in, input_filename)
+        # Download input file from GCS
+        # download_from_gcs(document.location_in, input_filename)
 
-    # with open(output_filename, "wb") as out_file:
-    #     out_file.close()
+        # with open(output_filename, "wb") as out_file:
+        #     out_file.close()
 
-    local_input_filename = download_from_gcs(document.location_in, document.id)
-    local_output_filename = f'{document.id}.{document.format_out.value}'
+        local_input_filename = download_from_gcs(document.location_in, document.id)
+        local_output_filename = f'{document.id}.{document.format_out.value}'
 
-    ffmpeg_command = ['ffmpeg', '-i', local_input_filename, local_output_filename, '-y']
+        ffmpeg_command = ['ffmpeg', '-i', local_input_filename, local_output_filename, '-y']
 
-    return_code = subprocess.call(ffmpeg_command)
+        return_code = subprocess.call(ffmpeg_command)
 
-    # Upload output file to GCS
-    upload_to_gcs(local_output_filename, f'Output/{document.id}.{document.format_out.value}')
-    
-    document.location_out = output_filename
+        # Upload output file to GCS
+        upload_to_gcs(local_output_filename, f'Output/{document.id}.{document.format_out.value}')
+        
+        document.location_out = output_filename
 
-    if not return_code:
-        document.status = DocumentStatus.Ready
-    else:
-        document.status = DocumentStatus.Error
+        if not return_code:
+            document.status = DocumentStatus.Ready
+        else:
+            document.status = DocumentStatus.Error
 
-    db.session.commit()
+        db.session.commit()
+        message.ack()
 
 def download_from_gcs(source_blob_name, document_id):
     """Descargar un archivo desde Google Cloud Storage."""
