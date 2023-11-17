@@ -45,7 +45,7 @@ api = Api(app)
 timeout = 5.0
 
 subscriber = pubsub_v1.SubscriberClient()
-subscription_path = 'projects/app-tranformacion-archivos/topics/convertion-tasks'
+subscription_path = 'projects/app-tranformacion-archivos/subscriptions/convertion-tasks-sub'
 
 
 

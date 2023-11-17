@@ -41,12 +41,7 @@ topic_path = 'projects/app-tranformacion-archivos/topics/convertion-tasks'
 
 class VistaStatus(Resource):
     def get(self):
-        data = 'publisher working'
-        data = data.encode('utf-8')
-
-        future = publisher.publish(topic_path,data)
-
-        return {'status' : 'Connected', 'pub/sub': future.result()}
+        return {'status' : 'Connected'}
 
 class VistaLogin(Resource):
      def post(self):
@@ -122,11 +117,20 @@ class VistaTasks(Resource):
             args = (document.id,)
 
             # convertFiles.apply_async(args)
+            data = 'publisher working'
+
+            attributes = {
+                'documentId': document.id
+            }
+            data = data.encode('utf-8')
+
+            future = publisher.publish(topic_path,data,**attributes )
             
             return {'filename': document.filename, 
                     'id': document.id,
                     'timestamp': document.timestamp, 
-                    'status': document.status.value
+                    'status': document.status.value,
+                    'pub/sub': future.result()
                     }
         
         except Exception as e:
