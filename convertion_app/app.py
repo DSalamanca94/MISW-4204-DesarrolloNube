@@ -21,7 +21,7 @@ from os.path import abspath, dirname, join
 config_file_path = abspath(join(dirname(__file__), '..', 'config.json'))
 google_file_path = abspath(join(dirname(__file__), '..', 'app-tranformacion-archivos.json'))
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_file_path
+# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_file_path
 
 with open(config_file_path, 'r') as config_file:
     config_data = json.load(config_file)
@@ -52,6 +52,11 @@ def convertFiles(message):
     with app.app_context():
         document_id = message.attributes.get('documentId')
         document = Document.query.get(document_id)
+
+        if not document:
+            message.ack()
+            return
+        
         print('{} - document {} in convertFiles'.format('datetime.datetime.now()', document.id))
         input_filename = document.location_in
         output_filename = f"{document.id}.{document.format_out.value}"
