@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restful import Api
+from flask_restful import Api, Resource
 from celery_config import celery_init_app
 
 import os
@@ -46,6 +46,11 @@ timeout = 5.0
 
 subscriber = pubsub_v1.SubscriberClient()
 subscription_path = 'projects/app-tranformacion-archivos/subscriptions/convertion-tasks-sub'
+
+
+class Status(Resource):
+    def get(self):
+        return ('convertion_app is running...')
 
 
 def convertFiles(message):
@@ -110,6 +115,9 @@ def upload_to_gcs(source_file_name, destination_blob_name):
     blob.upload_from_filename(source_file_name)
 
 streaming_pull_future = subscriber.subscribe(subscription_path, callback=convertFiles)
+
+
+api.add_resource(Status, '/status')
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
