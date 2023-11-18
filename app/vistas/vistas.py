@@ -117,7 +117,7 @@ class VistaTasks(Resource):
             args = (document.id,)
 
             # convertFiles.apply_async(args)
-            data = 'publisher working'
+            data = f'publisher file: {file.filename} , {document.timestamp} '
 
             attributes = {
                 'documentId': str(document.id)
