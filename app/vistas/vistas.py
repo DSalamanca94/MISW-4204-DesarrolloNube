@@ -41,7 +41,15 @@ topic_path = 'projects/app-tranformacion-archivos/topics/convertion-tasks'
 
 class VistaStatus(Resource):
     def get(self):
-        return {'status' : 'Connected'}
+        data = f'publisher file: {"Nombre del documento"} , {"document.timestamp"} '
+
+        data = data.encode('utf-8')
+        attributes = {
+            'documentId': str(0)
+        }
+
+        future = publisher.publish(topic_path,data,**attributes )
+        return {'status' : 'Connected', 'fute': future.result()}
 
 class VistaLogin(Resource):
      def post(self):
@@ -119,10 +127,10 @@ class VistaTasks(Resource):
             # convertFiles.apply_async(args)
             data = f'publisher file: {file.filename} , {document.timestamp} '
 
+            data = data.encode('utf-8')
             attributes = {
                 'documentId': str(document.id)
             }
-            data = data.encode('utf-8')
 
             future = publisher.publish(topic_path,data,**attributes )
             
