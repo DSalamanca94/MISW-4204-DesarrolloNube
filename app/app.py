@@ -20,7 +20,10 @@ with open(config_file_path, 'r') as config_file:
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://postgres:postgres@{config_data['IpPostgres']}:5432/postgres"
+url = f"postgresql://postgres:postgres@{config_data['IpPostgres']}:5432/postgres"
+print(f"{url = }")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'MISO-Nube'
 app.config['PROPAGATE_EXCEPTIONS'] = True
