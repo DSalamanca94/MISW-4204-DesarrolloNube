@@ -11,11 +11,10 @@ COPY . .
 # Install the required Python packages
 RUN pip3 install -r requirements.txt
 
-# Create a directory for temporary files
-RUN mkdir /app/temp
-
-
 ENV FLASK_APP=app.py
 # watch app' files
 ENV FLASK_DEBUG=true
 ENV FLASK_ENV=development
+
+# Run the web service on container startup
+CMD ["flask", "run"]
