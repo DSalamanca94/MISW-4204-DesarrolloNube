@@ -11,7 +11,7 @@ from vistas import VistaSignUp, VistaLogin, VistaTasks, VistaStatus, DocumentDow
 import json
 from os.path import abspath, dirname, join
 
-config_file_path = abspath(join(dirname(__file__), '..', 'config.json'))
+config_file_path = abspath(join(dirname(__file__), 'config.json'))
 
 with open(config_file_path, 'r') as config_file:
     config_data = json.load(config_file)

@@ -6,6 +6,8 @@ WORKDIR /app
  
 # Copy your application code and requirements file into the container
 COPY requirements2.txt requirements2.txt
+COPY config.json config.json
+COPY app-tranformacion-archivos.json app-tranformacion-archivos.json
 COPY . .
  
 # Install the required Python packages
