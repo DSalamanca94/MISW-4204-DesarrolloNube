@@ -33,7 +33,6 @@ app_context = app.app_context()
 app_context.push()
 
 db.init_app(app)
-db.create_all()
 
 app_context.push()
 
@@ -48,8 +47,6 @@ api.add_resource(DocumentDownloadIn, '/api/tasks/<int:id_task>/downloadin')
 api.add_resource(DocumentDownloadOut, '/api/tasks/<int:id_task>/downloadout')
 
 jwt = JWTManager(app)
-
-migrate = Migrate(app, db)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
