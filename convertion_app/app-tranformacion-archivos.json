@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "app-tranformacion-archivos",
+  "private_key_id": "d5ec1cb43e5e30ed89b8d7a50857b4a9be7e15ae",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDoRSET5PS1Nl/g\nG4ZmFQsWgE/1ZL9GI8MWQ6V2UU2iYcGz20NwACua2gL8oZNqT3PZhxAJh8cZZNO+\nl0h1Gu1hK+7QxQTAG+ncokkIuOmeI3buMRqvo3FtCqB811G3IDFif47Ys9y8wUTo\nnAwZ7CNUv8VJrjj2htZ6FU4FnnV0QFHLg2bAWRo9x/shQQsU1Lzes4c2tird3v36\nu4MuJTdklHHAy7Wv9zl/e6YAiO/IudbNKgAYkMKaW8PyXFK5/HaC8SIhVkszMIc8\n9t6M+jxAbQvvwBwjDNR21JnjALupDfivgNYqmV/Rn5qFB6B+1Jcml5LCoskNR0TX\nsKckU0N5AgMBAAECggEAANnmq0wpVL6sbvBQN5s3zVnOsTSwz2t9zAeXGXi7zZle\ncdp0WU/kLlmX2DV+tPgx5v1WjYpjVuWmhv9xQwiZum5ESPHn42JWzY8EsH+o+izh\nbdxdNNaRqazNIMKokytkMvBfus3nRFklolVBZW5BmjkSWoOabtYt/rLe9H37qoo4\nrjuIuWQ/RTK5wfLgVH7mPvAqIkZbzwvYOld/oHCslEsTQy309gUHirh8sb1WKuIv\n+TxbzFWhNF5AuSxa4esD9cA/h8k/UHRgjGd8/3A/QetgqRcD2+x++oZR1CVw2VIE\njNMi22nlUpUrY/R0qXoyqsdeY6lsNdJIy6MtnytFfwKBgQD4nGsssk3KdUAcaTs7\ndEZEUiwlfRuobP8UzUTGiVMnnvUNRvZ8MGhHSL55ZVhzvoabrqX7SJgIeDkB64Rv\n11Z4U/zB8YMDiMxIofGUzXaxkaTgCe/AHNxUYBKLRGNTRj6Vj5spXicQdoniNymN\n5CqTS9nRTaSMQLhilyzrcKjklwKBgQDvLGDu/HypBi5hG+Y/JybRjJ/SPqy4BCoO\nSUq2UEqrE6A4rdRdO1loFl//EA2V657dOM9O3bpUKXcL1QQ9jakkoMlwURsfemYE\nkWNfJQx7Z5OAI/vC84M2shC8lGECqrl/AazPNeGgCKlhHvP6KMJgnWmLxdk+fjfi\n3ky9SS/KbwKBgFgus11BSZJ8kGcDdH0cOyhUtU/+1mahcsEgJjr9zr8JBQbWmutm\nCDbwuI86wWscs4ZZJorBLxwh+KaTsYAyM3uu3sK0NbJ1PXCt8JDFaEqHzKGjJKVS\nF1zeTvWTJmANVHmcXH8J5HVUdogE5PptaiShDPvOvIT7F+vwj4Bbj6y1AoGBAOpO\nFIwrh8hiSM9TcKXPqiTBWdSzF6uSUMz8Ghgu4mdka6L7ED9ho/3nZZXPWS/UyyY3\nwEenyiEnGfvabDQM8nXymkTQ//w/gW/aKnqMJgVC++od1kcvHg1YNjM4PS1KqTx2\nHKBGTcnkkmKV2zfn9DyIGV0XrvKc3gz/8DfDWfE7AoGBAIKGnll5heDCn4EAVe6x\n/wZJru4oSilFdZTurLZ3tcI81JfsGWSRG/6J9Ga44j0c8hdvp8SEIJIi7++1EBOV\nD+UzTxDhRJOLHQHBZ/Wyx4Op/EgvkdmlrmoPDF7cuCcoFzwRIqU7HBAbWw8/j4Ni\nYk1QXJFNpVWIRy77WeuAntJy\n-----END PRIVATE KEY-----\n",
+  "client_email": "convertion-pubsub-service-acco@app-tranformacion-archivos.iam.gserviceaccount.com",
+  "client_id": "112935563762910943162",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/convertion-pubsub-service-acco%40app-tranformacion-archivos.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

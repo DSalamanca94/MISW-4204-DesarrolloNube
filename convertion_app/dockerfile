@@ -13,8 +13,11 @@ RUN apt-get update && apt-get install -y ffmpeg
 # Install any needed packages specified in requirements.txt
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
+RUN pip install gunicorn
+
+CMD exec gunicorn --bind :8080 --workers 1 --threads 0 --timeout 0 app:app
+
 # Make port 80 available to the world outside this container
-EXPOSE 80
 
 # Define environment variable
 ENV NAME World
