@@ -18,8 +18,8 @@ _download_directory = 'gs://app-storage-folder/Output'
 import json
 from os.path import abspath, dirname, join
 
-config_file_path = abspath(join(dirname(__file__), '..', 'config.json'))
-google_file_path = abspath(join(dirname(__file__), '..', 'app-tranformacion-archivos.json'))
+config_file_path = abspath(join(dirname(__file__), 'config.json'))
+google_file_path = abspath(join(dirname(__file__), 'app-tranformacion-archivos.json'))
 
 # os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_file_path
 
