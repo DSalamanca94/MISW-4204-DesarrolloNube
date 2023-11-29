@@ -11,7 +11,7 @@ COPY . /conversion_app
 RUN apt-get update && apt-get install -y ffmpeg
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+RUN pip install -r requirements.txt
 
 RUN pip install gunicorn
 
