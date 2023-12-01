@@ -106,7 +106,7 @@ typing-extensions==4.8.0
 tzdata==2023.3
 tzlocal==5.1
 #ubuntu-advantage-tools==8001
-ufw==0.36.1
+#ufw==0.36.1
 unattended-upgrades==0.1
 urllib3==2.0.7
 vine==5.0.0
