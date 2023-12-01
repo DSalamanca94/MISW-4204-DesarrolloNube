@@ -100,7 +100,7 @@ six==1.16.0
 #sos==4.5.6
 SQLAlchemy==2.0.22
 ssh-import-id==5.11
-systemd-python==234
+#systemd-python==234
 Twisted==22.1.0
 typing-extensions==4.8.0
 tzdata==2023.3
