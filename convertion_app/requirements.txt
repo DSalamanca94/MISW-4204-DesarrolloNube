@@ -24,7 +24,6 @@ constantly==15.1.0
 cryptography==3.4.8
 dbus-python==1.2.18
 distro==1.7.0
-distro-info==1.1+ubuntu0.1
 ffmpeg-python==0.2.0
 Flask==2.3.3
 Flask-APScheduler==1.13.0
