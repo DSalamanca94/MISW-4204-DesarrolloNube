@@ -97,7 +97,7 @@ SecretStorage==3.3.1
 service-identity==18.1.0
 setuptools==59.6.0
 six==1.16.0
-sos==4.5.6
+#sos==4.5.6
 SQLAlchemy==2.0.22
 ssh-import-id==5.11
 systemd-python==234
